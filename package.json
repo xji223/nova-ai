@@ -1,0 +1,10 @@
+{
+  "name": "nova-ai-starter",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NOVA AI starter web app",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "dependencies": { "express": "^4.21.2" },
+  "engines": { "node": ">=18" }
+}
