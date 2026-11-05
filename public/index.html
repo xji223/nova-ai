@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101426">
+<title>NOVA AI</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101426;color:#eef1ff;font-family:system-ui,sans-serif}
+.app{max-width:760px;margin:auto;min-height:100vh;display:flex;flex-direction:column;padding:20px}
+header{padding:18px 4px 24px;border-bottom:1px solid #303750}
+h1{margin:0;color:#aebaff;letter-spacing:3px;font-size:28px}
+.sub{color:#a3abc5;font-size:13px;margin-top:5px}
+#messages{flex:1;padding:18px 0;display:flex;flex-direction:column;gap:12px}
+.bubble{max-width:88%;padding:13px 15px;border-radius:16px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
+.nova{background:#222b45;align-self:flex-start}
+.user{background:#515fc1;align-self:flex-end}
+form{display:flex;gap:8px;padding:12px 0 5px}
+input{min-width:0;flex:1;padding:14px;border-radius:12px;border:1px solid #465071;background:#1b2238;color:white;font-size:16px}
+button{border:0;border-radius:12px;padding:0 18px;background:#8492ff;color:#11162b;font-weight:700;font-size:15px}
+button:disabled{opacity:.5}
+footer{color:#8f98b5;font-size:11px;padding:10px 2px}
+</style>
+</head>
+<body>
+<main class="app">
+<header><h1>NOVA</h1><div class="sub">PERSONAL AI · 你的专属 AI 助手</div></header>
+<section id="messages" aria-live="polite">
+<div class="bubble nova">你好，我是 NOVA。我们可以从这里开始。当前是基础版本，连接 AI 模型后就能进行智能对话。</div>
+</section>
+<form id="form">
+<input id="input" autocomplete="off" placeholder="发送消息给 NOVA…" maxlength="4000">
+<button id="send">发送</button>
+</form>
+<footer>请勿在聊天中发送密码、验证码或其他敏感凭据。基础版本不会在服务器保存聊天记录。</footer>
+</main>
+<script>
+const messages=document.getElementById("messages");
+const form=document.getElementById("form");
+const input=document.getElementById("input");
+const send=document.getElementById("send");
+function add(text,who){
+const el=document.createElement("div");
+el.className="bubble "+who;
+el.textContent=text;
+messages.appendChild(el);
+el.scrollIntoView({behavior:"smooth",block:"end"});
+}
+form.addEventListener("submit",async(e)=>{
+e.preventDefault();
+const message=input.value.trim();
+if(!message)return;
+add(message,"user");
+input.value="";
+send.disabled=true;
+try{
+const r=await fetch("/api/chat",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({message})
+});
+const data=await r.json();
+add(data.reply||data.error||"暂时无法回复。","nova");
+}catch{
+add("连接失败，请检查网络后重试。","nova");
+}finally{
+send.disabled=false;
+input.focus();
+}
+});
+</script>
+</body>
+</html>
